@@ -1,37 +1,8 @@
-import fs from "fs";
-
-const ENDPOINTS = {
-  compute: "https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/oci-emea/b/common/o/compute.json",
-  block: "https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/oci-emea/b/common/o/block.json",
-  network: "https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/oci-emea/b/common/o/network.json"
-};
-
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch ${url}`);
-  return res.json();
-}
-
-async function run() {
-  console.log("Fetching OCI pricing...");
-
-  const output = {
-    generated_at: new Date().toISOString(),
-    oci: {}
-  };
-
-  for (const key of Object.keys(ENDPOINTS)) {
-    console.log("→ Fetching", key);
-    try {
-      output.oci[key] = await fetchJSON(ENDPOINTS[key]);
-    } catch (err) {
-      console.error("Failed:", key, err);
-      output.oci[key] = { error: String(err) };
-    }
+{
+  "generated_at": "2025-11-28T18:53:24.052Z",
+  "oci": {
+    "compute": [],
+    "block": [],
+    "network": []
   }
-
-  fs.writeFileSync("prices.json", JSON.stringify(output, null, 2));
-  console.log("✔ prices.json updated");
 }
-
-run();
