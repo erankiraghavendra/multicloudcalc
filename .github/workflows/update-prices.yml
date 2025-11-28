@@ -3,47 +3,35 @@ name: Update OCI Prices
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # nightly UTC
+    - cron: "0 0 * * *"  # nightly
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: true
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies (none required)
-        run: echo "No npm deps required"
+      - name: Install dependencies
+        run: npm install oci-pricing
 
-      - name: Fetch OCI Prices
-        run: |
-          mkdir -p scripts
-          cat > scripts/fetch_oci_prices.js <<'EOF'
-          // paste the entire contents of scripts/fetch_oci_prices.js here
-          EOF
-          node scripts/fetch_oci_prices.js
+      - name: Run price fetcher
+        run: node scripts/fetch_oci_prices.js
 
-      - name: Show small preview (for logs)
+      - name: Commit updated prices.json
         run: |
-          echo "=== prices.json preview ==="
-          head -n 120 prices.json || true
-
-      - name: Commit and push prices.json
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add prices.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update prices.json (OCI) [ci skip]"
-            git push
-          fi
+          git commit -m "Update OCI prices" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
