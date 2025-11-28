@@ -1,9 +1,9 @@
 name: Update OCI Prices
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"   # nightly at midnight UTC
-  workflow_dispatch:      # allow manual run
+    - cron: '0 0 * * *'  # nightly UTC
 
 jobs:
   update:
@@ -12,47 +12,38 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      - name: Install dependencies (none required)
+        run: echo "No npm deps required"
+
       - name: Fetch OCI Prices
         run: |
           mkdir -p scripts
-          cat > scripts/fetch_oci_prices.js << 'EOF'
-          const fs = require('fs');
-          const https = require('https');
-
-          const OCI_URL = "https://objectstorage.us-ashburn-1.oraclecloud.com/n/oci-public/o/operating-systems/common/pricing.json";
-
-          https.get(OCI_URL, res => {
-            let data = "";
-            res.on("data", chunk => data += chunk);
-            res.on("end", () => {
-              const raw = JSON.parse(data);
-
-              const prices = {
-                oci: {
-                  compute: raw.services.compute,
-                  block: raw.services.blockvolume,
-                  network: raw.services.network
-                }
-              };
-
-              fs.writeFileSync("prices.json", JSON.stringify(prices, null, 2));
-              console.log("prices.json updated!");
-            });
-          });
+          cat > scripts/fetch_oci_prices.js <<'EOF'
+          // paste the entire contents of scripts/fetch_oci_prices.js here
           EOF
-
           node scripts/fetch_oci_prices.js
 
-      - name: Commit and push
+      - name: Show small preview (for logs)
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          echo "=== prices.json preview ==="
+          head -n 120 prices.json || true
+
+      - name: Commit and push prices.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add prices.json
-          git commit -m "Update OCI prices" || echo "No changes"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update prices.json (OCI) [ci skip]"
+            git push
+          fi
