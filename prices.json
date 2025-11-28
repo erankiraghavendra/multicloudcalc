@@ -1,0 +1,8 @@
+{
+  "oci": {
+    "note": "placeholder - will be replaced by workflow",
+    "storage": { "balanced_gb_month": 0.0425 },
+    "egress_per_gb": 0.09
+  },
+  "generated_at": "2025-11-28T00:00:00Z"
+}
