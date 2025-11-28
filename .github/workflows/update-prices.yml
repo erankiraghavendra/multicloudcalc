@@ -3,28 +3,28 @@ name: Update OCI Prices
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"  # nightly
+    - cron: "0 0 * * *"   # nightly run
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install oci-pricing
+      - name: Install libraries
+        run: npm install
 
-      - name: Run price fetcher
+      - name: Run OCI price fetcher
         run: node scripts/fetch_oci_prices.js
 
-      - name: Commit updated prices.json
+      - name: Commit prices.json
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
