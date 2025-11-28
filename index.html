@@ -1,1 +1,37 @@
 
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Multi-Cloud Cost Calculator</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+<h2>Live Cloud Pricing Test Page</h2>
+<p>This page loads <code>prices.json</code> generated automatically by GitHub Actions.</p>
+
+<button onclick="loadPrices()">Load Latest OCI Prices</button>
+
+<pre id="output">Waiting for prices.json...</pre>
+
+<script>
+function loadPrices() {
+  fetch("prices.json")
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById("output").textContent =
+        JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+      document.getElementById("output").textContent =
+        "Error loading prices.json: " + err;
+    });
+}
+</script>
+
+</body>
+</html>
